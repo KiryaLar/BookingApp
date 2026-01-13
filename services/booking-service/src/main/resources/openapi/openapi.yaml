@@ -1,0 +1,412 @@
+openapi: 3.1.0
+info:
+  title: Booking service API
+  version: 1.0.0
+  description: "Сервис бронирования: пользователи, авторизация и операции с бронированиями."
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Users
+    description: Операции с пользователями
+  - name: Bookings
+    description: Операции с бронированиями
+
+security:
+  - bearerAuth: [ ]
+
+paths:
+  /users/register:
+    post:
+      tags: [ Users ]
+      summary: Регистрация пользователя
+      operationId: registerUser
+      security: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                default:
+                  $ref: '#/components/examples/UserExampleAdmin'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /users/auth:
+    post:
+      tags: [ Users ]
+      summary: Авторизация пользователя
+      operationId: authorizeUser
+      security: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Выдача токена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                default:
+                  $ref: '#/components/examples/AuthResponseExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /users/{id}:
+    delete:
+      tags: [ Users ]
+      summary: Удаление пользователя (ADMIN)
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Пользователь удалён
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags: [ Users ]
+      summary: Обновление данных пользователя (ADMIN)
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Данные пользователя успешно обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /users:
+    post:
+      tags: [ Users ]
+      summary: Создание пользователя (ADMIN)
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                default:
+                  $ref: '#/components/examples/UserExampleUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /bookings:
+    post:
+      tags: [ Bookings ]
+      summary: Создание бронирования (USER)
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Бронирование создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/InternalError'
+    get:
+      tags: [ Bookings ]
+      summary: История бронирований пользователя (USER)
+      operationId: getBookings
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /bookings/{id}:
+    get:
+      tags: [ Bookings ]
+      summary: Получение бронирования по id (USER)
+      operationId: getBookingById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Бронирование успешно найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [ Bookings ]
+      summary: Удаление бронирования (USER)
+      operationId: deleteBookingById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Бронирование успешно удалено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  examples:
+    UserExampleAdmin:
+      summary: Пример пользователя (ADMIN)
+      value:
+        id: "8b0d2c71-0000-0000-0000-000000000000"
+        email: "larkin@mail.ru"
+        role: "ADMIN"
+        createdAt: "2025-01-01T10:00:00Z"
+    UserExampleUser:
+      summary: Пример пользователя (USER)
+      value:
+        id: "8b0d2c71-0000-0000-0000-000000000000"
+        email: "larkin@mail.ru"
+        role: "USER"
+        createdAt: "2025-01-01T10:00:00Z"
+    AuthResponseExample:
+      summary: Пример ответа авторизации
+      value:
+        accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        tokenType: "Bearer"
+        expiresIn: 3600
+
+  schemas:
+    RegisterUserRequest:
+      type: object
+      required: [ email, password, name ]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        name: { type: string, minLength: 1 }
+    AuthRequest:
+      type: object
+      required: [ email, password ]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1 }
+    UpdateUserRequest:
+      type: object
+      minProperties: 1
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        name: { type: string, minLength: 1 }
+        role: { type: string, enum: [ ADMIN, USER ] }
+    CreateBookingRequest:
+      type: object
+      required: [ hotelId, roomId ]
+      properties:
+        hotelId: { type: string }
+        roomId: { type: integer }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+    AuthResponse:
+      type: object
+      required: [ accessToken, tokenType, expiresIn ]
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, enum: [ Bearer ] }
+        expiresIn: { type: integer, minimum: 1 }
+    User:
+      type: object
+      required: [ id, email, role, createdAt ]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        role: { type: string, enum: [ ADMIN, USER ] }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+    Booking:
+      type: object
+      required: [ id, hotelId, roomId, status, createdAt ]
+      properties:
+        id: { type: string, format: uuid }
+        hotelId: { type: string }
+        roomId: { type: integer }
+        status: { type: string, enum: [ PENDING, CONFIRMED, CANCELLED ] }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    SuccessResponse:
+      type: object
+      required: [ status, timestamp ]
+      properties:
+        status: { type: integer }
+        message: { type: string }
+        traceId: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    Error:
+      type: object
+      required: [ title, status ]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Класс/тип ошибки
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        traceId: { type: string }
+
+  responses:
+    BadRequest:
+      description: Неверный запрос
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Не аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Недостаточно прав
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Не найдено
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Конфликт
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Внутренняя ошибка
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
