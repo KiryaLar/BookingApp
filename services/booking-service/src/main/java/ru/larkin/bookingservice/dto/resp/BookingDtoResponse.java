@@ -1,21 +1,20 @@
 package ru.larkin.bookingservice.dto.resp;
 
 import lombok.*;
-import ru.larkin.bookingservice.domain.BookingStatus;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Data
 @Builder
-@Setter
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingDtoResponse {
     private UUID id;
+    private UUID userId;
     private String hotelId;
-    private Integer roomId;
-    private BookingStatus status;
+    private Integer roomNumber;
+    private String status;
     private OffsetDateTime from;
     private OffsetDateTime to;
 }

@@ -1,19 +1,18 @@
 package ru.larkin.bookingservice.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.util.List;
+
+import java.net.URI;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.larkin.bookingservice.dto.resp.BookingDtoResponse;
 import ru.larkin.bookingservice.dto.req.CreateBookingRequest;
-import ru.larkin.bookingservice.dto.resp.SuccessResponse;
 import ru.larkin.bookingservice.service.BookingService;
 
 @RestController
@@ -23,33 +22,30 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    @PostMapping(consumes = "application/json", produces = "application/json")
+    @PostMapping
+//    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<BookingDtoResponse> createBooking(@Valid @RequestBody CreateBookingRequest createBookingRequest) {
-        BookingDtoResponse created = bookingService.create(createBookingRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+//        UUID userId = SecurityContextUtil.getCurrentUserId();
+        //TODO: Достать id из security context
+        BookingDtoResponse createdBooking = bookingService.create(createBookingRequest, UUID.randomUUID());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdBooking.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(createdBooking);
     }
 
-    @DeleteMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<SuccessResponse> deleteBookingById(@NotNull @PathVariable("id") UUID id) {
-        bookingService.delete(id);
-        SuccessResponse resp = new SuccessResponse();
-        resp.setStatus(200);
-        resp.setMessage("deleted");
-        resp.setTimestamp(OffsetDateTime.now());
-        return ResponseEntity.ok(resp);
-    }
-
-    @GetMapping(value = "/{id}", produces = "application/json")
+    @GetMapping("/{id}")
     public ResponseEntity<BookingDtoResponse> getBookingById(@NotNull @PathVariable("id") UUID id) {
-        return ResponseEntity.ok(bookingService.getById(id));
+//        UUID userId = SecurityContextUtil.getCurrentUserId();
+        //TODO: Достать id из security context
+        return ResponseEntity.ok(bookingService.getById(id, UUID.randomUUID()));
     }
 
-    @GetMapping(produces = "application/json")
-    public ResponseEntity<List<BookingDtoResponse>> getBookings(
-            @Min(0) @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-            @Min(1) @Max(100) @RequestParam(value = "size", required = false, defaultValue = "20") Integer size
-    ) {
-        return ResponseEntity.ok(bookingService.getPage(page, size));
+    @GetMapping
+    public ResponseEntity<Page<BookingDtoResponse>> getBookings(Pageable pageable) {
+//        UUID userId = SecurityContextUtil.getCurrentUserId();
+        //TODO: Достать id из security context
+        return ResponseEntity.ok(bookingService.getBookingsByUserId(pageable, UUID.randomUUID()));
     }
 }
-

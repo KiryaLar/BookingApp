@@ -1,32 +1,35 @@
-package ru.larkin.bookingservice.contoller;
+package ru.larkin.bookingservice.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import ru.larkin.bookingservice.dto.req.AuthRequest;
-import ru.larkin.bookingservice.dto.resp.AuthResponse;
 import ru.larkin.bookingservice.dto.req.RegisterUserRequest;
 import ru.larkin.bookingservice.dto.req.UpdateUserRequest;
 import ru.larkin.bookingservice.dto.resp.UserDtoResponse;
 import ru.larkin.bookingservice.service.UserService;
 
-@RestController
-@RequestMapping("/users")
+import java.util.UUID;
+
+@Controller
+@RequestMapping("/admin/users")
 @RequiredArgsConstructor
-public class UserController {
+//    @PreAuthorize("hasRole('ADMIN')")
+public class AdminUserController {
 
     private final UserService userService;
 
-    @PostMapping(value = "/auth", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<AuthResponse> authorizeUser(@Valid @RequestBody AuthRequest authRequest) {
-        return ResponseEntity.ok(userService.authorize(authRequest));
+    @GetMapping
+    public Page<UserDtoResponse> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable);
     }
 
-    @PostMapping(consumes = "application/json", produces = "application/json")
+    @PostMapping
     public ResponseEntity<UserDtoResponse> createUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         UserDtoResponse created = userService.createByAdmin(registerUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -38,13 +41,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/register", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<UserDtoResponse> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
-        UserDtoResponse created = userService.register(registerUserRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @PatchMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserDtoResponse> updateUser(
             @NotNull @PathVariable("id") UUID id,
             @Valid @RequestBody UpdateUserRequest updateUserRequest

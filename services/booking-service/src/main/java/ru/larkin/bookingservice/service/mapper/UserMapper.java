@@ -10,13 +10,12 @@ public final class UserMapper {
     private UserMapper() {
     }
 
-    public static UserDtoResponse toApi(User entity) {
+    public static UserDtoResponse toResponse(User entity) {
         UserDtoResponse userDtoResponse = new UserDtoResponse();
         userDtoResponse.setId(entity.getId());
         userDtoResponse.setEmail(entity.getEmail());
         userDtoResponse.setName(entity.getUsername());
-        userDtoResponse.setRole(UserDtoResponse.RoleEnum.valueOf(entity.getRole().name()));
-        userDtoResponse.setCreatedAt(entity.getCreatedAt());
+        userDtoResponse.setRole(entity.getRole().name());
         return userDtoResponse;
     }
 

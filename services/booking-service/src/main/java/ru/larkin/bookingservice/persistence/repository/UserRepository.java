@@ -2,13 +2,11 @@ package ru.larkin.bookingservice.persistence.repository;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.larkin.bookingservice.persistence.entity.User;
 
-public interface UserRepository {
-
-    User save(User entity);
-
-    Optional<User> findById(UUID id);
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsById(UUID id);
 

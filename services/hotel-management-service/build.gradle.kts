@@ -1,23 +1,29 @@
 plugins {
-    java
-    id("org.springframework.boot") version "3.5.9"
-    id("io.spring.dependency-management") version "1.1.7"
+    // Convention plugins
+    id("booking.spring-service")
 }
 
 description = "hotel-management-service"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+//    Base
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.validation)
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+    // Lombok
+    implementation(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
+
+//    Persistence
+    implementation(libs.spring.boot.starter.data.jpa)
+    runtimeOnly(libs.postgresql)
+
+    testRuntimeOnly(libs.junit.platform.launcher)
+
+    // Docs
+    implementation(libs.springdoc.openapi.webmvc.ui)
+
+    // Tests
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

@@ -11,12 +11,12 @@ public final class BookingMapper {
     public static BookingDtoResponse toResponse(Booking entity) {
         BookingDtoResponse bookingDtoResponse = new BookingDtoResponse();
         bookingDtoResponse.setId(entity.getId());
+        bookingDtoResponse.setUserId(entity.getUser().getId());
         bookingDtoResponse.setHotelId(entity.getHotelId().toString());
-        bookingDtoResponse.setRoomId(entity.getRoomNumber());
-        bookingDtoResponse.setStatus(BookingDtoResponse.StatusEnum.valueOf(entity.getStatus().name()));
+        bookingDtoResponse.setRoomNumber(entity.getRoomNumber());
+        bookingDtoResponse.setStatus(entity.getStatus().name());
         bookingDtoResponse.setFrom(entity.getStartDate());
         bookingDtoResponse.setTo(entity.getEndDate());
-        bookingDtoResponse.setCreatedAt(entity.getCreatedAt());
         return bookingDtoResponse;
     }
 }

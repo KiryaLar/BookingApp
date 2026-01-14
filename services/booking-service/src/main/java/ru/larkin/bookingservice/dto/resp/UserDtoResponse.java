@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.larkin.bookingservice.domain.UserRole;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,9 +14,9 @@ import java.util.UUID;
 public class UserDtoResponse {
 
     private UUID id;
+    private String username;
     private String email;
     private String name;
-    private UserRole role;
-    private OffsetDateTime createdAt;
+    private String role;
 }
 

@@ -1,6 +1,9 @@
 package ru.larkin.bookingservice.service;
 
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.larkin.bookingservice.domain.UserRole;
@@ -48,7 +51,7 @@ public class UserService {
                 .build();
 
         userRepository.save(entity);
-        return UserMapper.toApi(entity);
+        return UserMapper.toResponse(entity);
     }
 
     @Transactional
@@ -71,7 +74,7 @@ public class UserService {
                 .build();
 
         userRepository.save(entity);
-        return UserMapper.toApi(entity);
+        return UserMapper.toResponse(entity);
     }
 
     @Transactional
@@ -118,6 +121,7 @@ public class UserService {
             entity.setUsername(req.getUsername());
         }
 
+//        TODO: Шифрование пароля
         if (req.getPassword() != null && !req.getPassword().isBlank()) {
             entity.setPasswordHash("{noop}" + req.getPassword());
         }
@@ -127,6 +131,11 @@ public class UserService {
         }
 
         userRepository.save(entity);
-        return UserMapper.toApi(entity);
+        return UserMapper.toResponse(entity);
+    }
+
+    public Page<UserDtoResponse> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserMapper::toResponse);
     }
 }

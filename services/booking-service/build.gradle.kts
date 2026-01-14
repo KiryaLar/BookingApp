@@ -23,8 +23,5 @@ dependencies {
     implementation(libs.springdoc.openapi.webmvc.ui)
 
     // Tests
-    testImplementation(libs.spring.boot.starter.test)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
-
-// OpenAPI codegen отключен: используем обычные контроллеры/DTO в src/main/java
