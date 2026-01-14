@@ -12,21 +12,22 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "rooms")
+@Table(name = "rooms",
+uniqueConstraints = {
+           @UniqueConstraint(columnNames = {"hotel_id", "room_number"})
+       })
 public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private Integer roomNumber;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "hotel_id", nullable = false)
     private Hotel hotel;
-
-    @Column(nullable = false)
-    private String number;
 
     private Integer capacity;
 

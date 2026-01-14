@@ -1,23 +1,18 @@
 plugins {
-    java
-    id("org.springframework.boot") version "3.5.9"
-    id("io.spring.dependency-management") version "1.1.7"
+    // Convention plugins
+    id("booking.spring-service")
 }
 
 description = "discovery-service"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+//    Base
+    implementation(libs.spring.boot.starter.web)
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+//    Eureka Server
+    implementation(platform(libs.spring.cloud.bom))
+    implementation(libs.spring.cloud.starter.netflix.eureka.server)
+
+//    Actuator
+    implementation(libs.spring.boot.starter.actuator)
 }

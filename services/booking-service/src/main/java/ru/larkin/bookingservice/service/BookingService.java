@@ -23,7 +23,6 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public BookingDtoResponse create(CreateBookingRequest req, UUID userId) {
@@ -66,8 +65,7 @@ public class BookingService {
 
     @Transactional
     public void delete(UUID id) {
-        UUID userId = currentUserProvider.require();
-        Booking entity = bookingRepository.findByIdAndUserId(id, userId)
+        Booking entity = bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
         bookingRepository.delete(entity);
     }

@@ -13,11 +13,12 @@ import ru.larkin.hotelmanagementservice.dto.resp.ConfirmAvailabilityResponse;
 import ru.larkin.hotelmanagementservice.dto.resp.RoomResponse;
 import ru.larkin.hotelmanagementservice.entity.Hotel;
 import ru.larkin.hotelmanagementservice.entity.Room;
+import ru.larkin.hotelmanagementservice.entity.RoomAvailabilityStatus;
+import ru.larkin.hotelmanagementservice.entity.RoomHold;
 import ru.larkin.hotelmanagementservice.repo.HotelRepository;
 import ru.larkin.hotelmanagementservice.repo.RoomHoldRepository;
 import ru.larkin.hotelmanagementservice.repo.RoomRepository;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +40,8 @@ public class RoomService {
 
         Room saved = roomRepository.save(Room.builder()
                 .hotel(hotel)
-                .number(request.number())
+                .availabilityStatus(RoomAvailabilityStatus.AVAILABLE)
+                .roomNumber(request.roomNumber())
                 .capacity(request.capacity())
                 .pricePerNight(request.pricePerNight())
                 .build());
@@ -48,7 +50,6 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public List<RoomResponse> listAvailable(RoomsQuery query) {
-        validateDates(query.dateFrom(), query.dateTo());
         return roomRepository.findAvailableRooms(query.dateFrom(), query.dateTo()).stream()
                 .map(this::toResponse)
                 .toList();
@@ -56,16 +57,13 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public List<RoomResponse> listRecommended(RoomsQuery query) {
-        validateDates(query.dateFrom(), query.dateTo());
         return roomRepository.findRecommendedAvailableRooms(query.dateFrom(), query.dateTo()).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Transactional
-    public ConfirmAvailabilityResponse confirmAvailability(long roomId, ConfirmAvailabilityRequest request) {
-        validateDates(request.dateFrom(), request.dateTo());
-
+    public ConfirmAvailabilityResponse confirmAvailability(UUID roomId, ConfirmAvailabilityRequest request) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
@@ -84,12 +82,18 @@ public class RoomService {
         String token = UUID.randomUUID().toString();
         OffsetDateTime expiresAt = OffsetDateTime.now().plusMinutes(minutes);
 
-        roomHoldRepository.save(new RoomHold(room, request.dateFrom(), request.dateTo(), token, expiresAt));
+        roomHoldRepository.save(RoomHold.builder()
+                .room(room)
+                .dateFrom(request.dateFrom())
+                .dateTo(request.dateTo())
+                .token(token)
+                .expiresAt(expiresAt)
+                .build());
         return new ConfirmAvailabilityResponse(token, expiresAt);
     }
 
     @Transactional
-    public void releaseHold(long roomId, ReleaseHoldRequest request) {
+    public void releaseHold(UUID roomId, ReleaseHoldRequest request) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
@@ -103,20 +107,11 @@ public class RoomService {
         roomHoldRepository.delete(hold);
     }
 
-    private void validateDates(LocalDate from, LocalDate to) {
-        if (from == null || to == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "dateFrom/dateTo are required");
-        }
-        if (!from.isBefore(to)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "dateFrom must be before dateTo");
-        }
-    }
-
     protected RoomResponse toResponse(Room r) {
         return new RoomResponse(
                 r.getId(),
                 r.getHotel().getId(),
-                r.getNumber(),
+                r.getRoomNumber(),
                 r.getCapacity(),
                 r.getPricePerNight(),
                 r.getTimesBooked()

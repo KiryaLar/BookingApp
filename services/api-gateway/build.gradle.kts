@@ -1,23 +1,35 @@
 plugins {
-    alias(libs.plugins.spring.dependency.management)
-    alias(libs.plugins.spring.boot)
-    java
+//    Convention plugins from build-logic
+    id("booking.spring-service")
 }
 
 description = "api-gateway"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 dependencies {
-    implementation(libs.spring.boot.starter.web)
-    testImplementation(libs.spring.boot.starter.test)
-    testRuntimeOnly(libs.junit.platform.launcher)
-}
+//    Base
+    implementation(libs.spring.boot.starter.webflux)
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+//    Gateway
+    implementation(libs.spring.cloud.starter.gateway)
+
+//    Eureka Client
+    implementation(platform(libs.spring.cloud.bom))
+    implementation(libs.spring.cloud.starter.netflix.eureka.client)
+
+//    Actuator
+    implementation(libs.spring.boot.starter.actuator)
+
+//    Security
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.jjwt.api)
+    implementation(libs.jjwt.impl)
+    implementation(libs.jjwt.jackson)
+    implementation(libs.spring.security.oauth2.jose)
+
+//    OpenApi
+    implementation(libs.springdoc.openapi.webflux.ui)
+
+//    Tests
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.wiremock)
 }
