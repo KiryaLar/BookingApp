@@ -1,6 +1,7 @@
 rootProject.name = "BookingApp"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         gradlePluginPortal()
         mavenCentral()
@@ -13,8 +14,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-includeBuild("build-logic")
 
 include(
     "services:api-gateway",

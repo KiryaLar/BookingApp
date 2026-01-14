@@ -8,6 +8,6 @@ java {
     }
 }
 
-task.withType<Test>.configureEach {
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }

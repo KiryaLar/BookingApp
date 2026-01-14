@@ -1,2 +1,21 @@
 spring:
   application.name: booking-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking
+    username: booking
+    password: booking
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui

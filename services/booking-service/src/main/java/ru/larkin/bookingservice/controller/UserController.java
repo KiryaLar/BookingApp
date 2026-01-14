@@ -1,4 +1,4 @@
-package ru.larkin.bookingservice.contoller;
+package ru.larkin.bookingservice.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteUser(@NotNull @PathVariable("id") UUID id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
@@ -52,3 +52,4 @@ public class UserController {
         return ResponseEntity.ok(userService.update(id, updateUserRequest));
     }
 }
+

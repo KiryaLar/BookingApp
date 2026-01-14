@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
               examples:
                 default:
                   $ref: '#/components/examples/UserExampleAdmin'
@@ -110,7 +110,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -139,7 +139,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
               examples:
                 default:
                   $ref: '#/components/examples/UserExampleUser'
@@ -171,7 +171,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: '#/components/schemas/BookingResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -193,7 +193,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: '#/components/schemas/BookingResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         default:
@@ -212,7 +212,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: '#/components/schemas/BookingResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -311,16 +311,16 @@ components:
       type: object
       minProperties: 1
       properties:
+        username: { type: string, minLength: 1 }
         email: { type: string, format: email }
         password: { type: string, minLength: 8 }
-        name: { type: string, minLength: 1 }
         role: { type: string, enum: [ ADMIN, USER ] }
     CreateBookingRequest:
       type: object
-      required: [ hotelId, roomId ]
+      required: [ hotelId, roomNumber ]
       properties:
         hotelId: { type: string }
-        roomId: { type: integer }
+        roomNumber: { type: integer }
         from: { type: string, format: date-time }
         to: { type: string, format: date-time }
     AuthResponse:
@@ -330,26 +330,25 @@ components:
         accessToken: { type: string }
         tokenType: { type: string, enum: [ Bearer ] }
         expiresIn: { type: integer, minimum: 1 }
-    User:
+    UserResponse:
       type: object
-      required: [ id, email, role, createdAt ]
+      required: [ id, username, email, role ]
       properties:
         id: { type: string, format: uuid }
+        username: { type: string }
         email: { type: string, format: email }
         role: { type: string, enum: [ ADMIN, USER ] }
-        name: { type: string }
-        createdAt: { type: string, format: date-time }
-    Booking:
+    BookingResponse:
       type: object
-      required: [ id, hotelId, roomId, status, createdAt ]
+      required: [ id, userId, hotelId, roomNumber, status, startDate, endDate]
       properties:
         id: { type: string, format: uuid }
-        hotelId: { type: string }
-        roomId: { type: integer }
+        userId: { type: string, format: uuid }
+        hotelId: { type: string, format: uuid }
+        roomNumber: { type: integer }
         status: { type: string, enum: [ PENDING, CONFIRMED, CANCELLED ] }
         from: { type: string, format: date-time }
         to: { type: string, format: date-time }
-        createdAt: { type: string, format: date-time }
 
     SuccessResponse:
       type: object

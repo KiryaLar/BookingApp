@@ -1,18 +1,16 @@
-package ru.larkin.bookingservice.contoller;
+package ru.larkin.bookingservice.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.larkin.bookingservice.dto.resp.BookingDtoResponse;
 import ru.larkin.bookingservice.dto.req.CreateBookingRequest;
 import ru.larkin.bookingservice.dto.resp.SuccessResponse;
@@ -27,12 +25,8 @@ public class BookingController {
 
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<BookingDtoResponse> createBooking(@Valid @RequestBody CreateBookingRequest createBookingRequest) {
-        BookingDtoResponse createdBooking = bookingService.create(createBookingRequest);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(createdBooking.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(createdBooking);
+        BookingDtoResponse created = bookingService.create(createBookingRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/json")
@@ -58,3 +52,4 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getPage(page, size));
     }
 }
+
