@@ -45,6 +45,8 @@ spring-cloud-starter-netflix-eureka-client = { module = "org.springframework.clo
 
 # Observability
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+micrometer-tracing-bridge-otel = { module = "io.micrometer:micrometer-tracing-bridge-otel" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
 
 # OpenAPI (для MVC сервисов — webmvc, для gateway/webflux — webflux)
 springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }

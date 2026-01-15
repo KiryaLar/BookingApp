@@ -19,6 +19,11 @@ dependencies {
     implementation(libs.spring.boot.starter.data.jpa)
     runtimeOnly(libs.postgresql)
 
+    //    Observability
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.micrometer.tracing.bridge.otel)
+    implementation(libs.opentelemetry.exporter.otlp)
+
     // Docs
     implementation(libs.springdoc.openapi.webmvc.ui)
 

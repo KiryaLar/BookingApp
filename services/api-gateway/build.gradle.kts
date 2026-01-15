@@ -16,8 +16,10 @@ dependencies {
     implementation(platform(libs.spring.cloud.bom))
     implementation(libs.spring.cloud.starter.netflix.eureka.client)
 
-//    Actuator
+//    Observability
     implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.micrometer.tracing.bridge.otel)
+    implementation(libs.opentelemetry.exporter.otlp)
 
 //    Security
     implementation(libs.spring.boot.starter.security)

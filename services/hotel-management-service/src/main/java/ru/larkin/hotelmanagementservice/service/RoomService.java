@@ -10,6 +10,7 @@ import ru.larkin.hotelmanagementservice.dto.req.CreateRoomRequest;
 import ru.larkin.hotelmanagementservice.dto.req.ReleaseHoldRequest;
 import ru.larkin.hotelmanagementservice.dto.req.RoomsQuery;
 import ru.larkin.hotelmanagementservice.dto.resp.ConfirmAvailabilityResponse;
+import ru.larkin.hotelmanagementservice.dto.resp.RoomLoadStatResponse;
 import ru.larkin.hotelmanagementservice.dto.resp.RoomResponse;
 import ru.larkin.hotelmanagementservice.entity.Hotel;
 import ru.larkin.hotelmanagementservice.entity.Room;
@@ -20,6 +21,7 @@ import ru.larkin.hotelmanagementservice.repo.RoomHoldRepository;
 import ru.larkin.hotelmanagementservice.repo.RoomRepository;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,6 +107,27 @@ public class RoomService {
         }
 
         roomHoldRepository.delete(hold);
+    }
+
+    public List<RoomLoadStatResponse> getRoomsLoadStat(String order, Integer top) {
+        Comparator<Room> comparator = Comparator.comparingLong(Room::getTimesBooked);
+        if (!"asc".equalsIgnoreCase(order)) {
+            comparator = comparator.reversed();
+        }
+
+        long limit = (top == null) ? Long.MAX_VALUE : Math.max(0, top);
+
+        return roomRepository.findAll().stream()
+                .sorted(comparator)
+                .limit(limit)
+                .map(r ->
+                        new RoomLoadStatResponse(
+                                r.getId(),
+                                r.getHotel().getId(),
+                                r.getRoomNumber(),
+                                r.getTimesBooked()
+                        ))
+                .toList();
     }
 
     protected RoomResponse toResponse(Room r) {
