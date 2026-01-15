@@ -24,6 +24,6 @@ public class RegisterUserRequest {
 
     @NotNull
     @Size(min = 1)
-    private String name;
+    private String username;
 }
 

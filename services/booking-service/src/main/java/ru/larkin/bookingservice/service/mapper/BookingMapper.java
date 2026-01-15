@@ -12,8 +12,8 @@ public final class BookingMapper {
         BookingDtoResponse bookingDtoResponse = new BookingDtoResponse();
         bookingDtoResponse.setId(entity.getId());
         bookingDtoResponse.setUserId(entity.getUser().getId());
-        bookingDtoResponse.setHotelId(entity.getHotelId().toString());
-        bookingDtoResponse.setRoomNumber(entity.getRoomNumber());
+        bookingDtoResponse.setHotelId(entity.getHotelId());
+        bookingDtoResponse.setRoomId(entity.getRoomId());
         bookingDtoResponse.setStatus(entity.getStatus().name());
         bookingDtoResponse.setFrom(entity.getStartDate());
         bookingDtoResponse.setTo(entity.getEndDate());

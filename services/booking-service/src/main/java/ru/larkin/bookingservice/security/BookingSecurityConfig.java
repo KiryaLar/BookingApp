@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,15 +13,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -39,11 +41,11 @@ public class BookingSecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder(@Value("${security.jwt.secret}") String secretBase64) {
-        byte[] secret = java.util.Base64.getDecoder().decode(secretBase64);
-        javax.crypto.SecretKey key = new javax.crypto.spec.SecretKeySpec(secret, "HmacSHA256");
-        return org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+        byte[] secret = Base64.getDecoder().decode(secretBase64);
+        SecretKey key = new SecretKeySpec(secret, "HmacSHA256");
+        return NimbusJwtDecoder
                 .withSecretKey(key)
-                .macAlgorithm(org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256)
+                .macAlgorithm(MacAlgorithm.HS256)
                 .build();
     }
 
@@ -56,13 +58,13 @@ public class BookingSecurityConfig {
                         sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/register", "/users/auth").permitAll()
-
-                        .requestMatchers("/admin/users").hasRole("ADMIN")
-                        .requestMatchers("/admin/bookings").hasRole("ADMIN")
-
-                        .requestMatchers("/bookings/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/bookings/**").hasAuthority("USER")
+//                        .requestMatchers(HttpMethod.POST, "/users/register", "/users/auth").permitAll()
+//
+//                        .requestMatchers("/admin/users").hasRole("ADMIN")
+//                        .requestMatchers("/admin/bookings").hasRole("ADMIN")
+//
+//                        .requestMatchers("/bookings/**").hasAnyRole("USER", "ADMIN")
+//                        .requestMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
 
                         .anyRequest().authenticated()
                 )
@@ -100,5 +102,10 @@ public class BookingSecurityConfig {
                 .map(String::toUpperCase)
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

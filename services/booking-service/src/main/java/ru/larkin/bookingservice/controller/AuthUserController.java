@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.larkin.bookingservice.dto.req.AuthRequest;
-import ru.larkin.bookingservice.dto.resp.AuthResponse;
+import ru.larkin.bookingservice.dto.resp.AccessTokenResponse;
 import ru.larkin.bookingservice.dto.req.RegisterUserRequest;
 import ru.larkin.bookingservice.dto.resp.UserDtoResponse;
 import ru.larkin.bookingservice.service.UserService;
@@ -21,7 +21,7 @@ import ru.larkin.bookingservice.service.UserService;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "Регистрация и авторизация")
-public class UserController {
+public class AuthUserController {
 
     private final UserService userService;
 
@@ -29,11 +29,11 @@ public class UserController {
     @Operation(summary = "Авторизация", description = "Аутентификация пользователя и выдача JWT")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Успешная авторизация",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    content = @Content(schema = @Schema(implementation = AccessTokenResponse.class))),
             @ApiResponse(responseCode = "400", description = "Ошибка валидации", content = @Content),
             @ApiResponse(responseCode = "401", description = "Неверные учетные данные", content = @Content)
     })
-    public ResponseEntity<AuthResponse> authorizeUser(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AccessTokenResponse> authorizeUser(@Valid @RequestBody AuthRequest authRequest) {
         return ResponseEntity.ok(userService.authorize(authRequest));
     }
 

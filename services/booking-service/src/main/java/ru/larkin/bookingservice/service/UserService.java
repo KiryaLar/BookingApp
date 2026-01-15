@@ -1,16 +1,27 @@
 package ru.larkin.bookingservice.service;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.larkin.bookingservice.domain.UserRole;
 import ru.larkin.bookingservice.dto.req.AuthRequest;
-import ru.larkin.bookingservice.dto.resp.AuthResponse;
 import ru.larkin.bookingservice.dto.req.RegisterUserRequest;
 import ru.larkin.bookingservice.dto.req.UpdateUserRequest;
+import ru.larkin.bookingservice.dto.resp.AccessTokenResponse;
 import ru.larkin.bookingservice.dto.resp.UserDtoResponse;
 import ru.larkin.bookingservice.persistence.entity.User;
 import ru.larkin.bookingservice.persistence.repository.UserRepository;
@@ -19,16 +30,15 @@ import ru.larkin.bookingservice.service.exception.NotFoundException;
 import ru.larkin.bookingservice.service.exception.UnauthorizedException;
 import ru.larkin.bookingservice.service.mapper.UserMapper;
 
-import java.time.OffsetDateTime;
-
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    private static final int ACCESS_TOKEN_TTL_SECONDS = 3600;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtEncoder jwtEncoder;
 
     @Transactional
     public UserDtoResponse register(RegisterUserRequest req) {
@@ -36,60 +46,47 @@ public class UserService {
             throw new ConflictException("Пользователь с таким email уже существует");
         }
 
-        UUID id = UUID.randomUUID();
-        OffsetDateTime now = OffsetDateTime.now();
-
-        String passwordHash = "{noop}" + req.getPassword();
-
         User entity = User.builder()
-                .id(id)
                 .email(req.getEmail())
-                .username(req.getName())
-                .passwordHash(passwordHash)
+                .username(req.getUsername())
+                .passwordHash(passwordEncoder.encode(req.getPassword()))
                 .role(UserRole.USER)
-                .createdAt(now)
                 .build();
 
         userRepository.save(entity);
         return UserMapper.toResponse(entity);
     }
 
-    @Transactional
-    public UserDtoResponse createByAdmin(RegisterUserRequest req) {
-        if (userRepository.existsByEmailIgnoreCase(req.getEmail())) {
-            throw new ConflictException("Пользователь с таким email уже существует");
-        }
-
-        UUID id = UUID.randomUUID();
-        OffsetDateTime now = OffsetDateTime.now();
-        String passwordHash = "{noop}" + req.getPassword();
-
-        User entity = User.builder()
-                .id(id)
-                .email(req.getEmail())
-                .username(req.getName())
-                .passwordHash(passwordHash)
-                .role(UserRole.USER)
-                .createdAt(now)
-                .build();
-
-        userRepository.save(entity);
-        return UserMapper.toResponse(entity);
-    }
-
-    @Transactional
-    public AuthResponse authorize(AuthRequest req) {
+    @Transactional(readOnly = true)
+    public AccessTokenResponse authorize(AuthRequest req) {
         User user = userRepository.findByEmailIgnoreCase(req.getEmail())
-                .orElseThrow(() -> new UnauthorizedException("Неверный email или пароль"));
+                .orElseThrow(() -> new UnauthorizedException("Неверный email"));
 
-        if (!user.getPasswordHash().equals("{noop}" + req.getPassword())) {
-            throw new UnauthorizedException("Неверный email или пароль");
+        if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+            throw new UnauthorizedException("Неверный пароль");
         }
 
-        AuthResponse resp = new AuthResponse();
-        resp.setAccessToken("stub-token-for-" + user.getId());
-        resp.setTokenType(AuthResponse.TokenTypeEnum.BEARER);
-        resp.setExpiresIn(3600);
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(ACCESS_TOKEN_TTL_SECONDS);
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("booking-service")
+                .issuedAt(now)
+                .expiresAt(expiresAt)
+                .subject(user.getId().toString())
+                .claim("email", user.getEmail())
+                .claim("username", user.getUsername())
+                // то, что ожидает BookingSecurityConfig: role/roles
+                .claim("role", user.getRole().name())
+                .claim("roles", List.of(user.getRole().name()))
+                .build();
+
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+
+        AccessTokenResponse resp = new AccessTokenResponse();
+        resp.setAccessToken(token);
+        resp.setExpiresIn(ACCESS_TOKEN_TTL_SECONDS);
         return resp;
     }
 
@@ -116,14 +113,12 @@ public class UserService {
             entity.setEmail(req.getEmail());
         }
 
-        // username обновляется из request.username
         if (req.getUsername() != null && !req.getUsername().isBlank()) {
             entity.setUsername(req.getUsername());
         }
 
-//        TODO: Шифрование пароля
         if (req.getPassword() != null && !req.getPassword().isBlank()) {
-            entity.setPasswordHash("{noop}" + req.getPassword());
+            entity.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         }
 
         if (req.getRole() != null) {
@@ -134,6 +129,7 @@ public class UserService {
         return UserMapper.toResponse(entity);
     }
 
+    @Transactional(readOnly = true)
     public Page<UserDtoResponse> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(UserMapper::toResponse);

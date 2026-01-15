@@ -18,10 +18,9 @@ public class CreateBookingRequest {
     private String hotelId;
 
     @NotNull
-    private Integer roomId;
+    private String roomId;
 
     private OffsetDateTime from;
-
     private OffsetDateTime to;
 }
 

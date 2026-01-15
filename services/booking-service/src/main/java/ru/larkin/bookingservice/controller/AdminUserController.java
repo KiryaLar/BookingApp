@@ -66,7 +66,7 @@ public class AdminUserController {
             @ApiResponse(responseCode = "403", description = "Недостаточно прав", content = @Content)
     })
     public ResponseEntity<UserDtoResponse> createUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
-        UserDtoResponse created = userService.createByAdmin(registerUserRequest);
+        UserDtoResponse created = userService.register(registerUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 

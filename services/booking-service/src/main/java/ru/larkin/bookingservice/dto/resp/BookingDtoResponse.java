@@ -12,7 +12,8 @@ import java.util.UUID;
 public class BookingDtoResponse {
     private UUID id;
     private UUID userId;
-    private String hotelId;
+    private UUID hotelId;
+    private UUID roomId;
     private Integer roomNumber;
     private String status;
     private OffsetDateTime from;

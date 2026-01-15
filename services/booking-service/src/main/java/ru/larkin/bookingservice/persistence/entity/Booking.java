@@ -31,7 +31,7 @@ public class Booking {
     private UUID hotelId;
 
     @Column(nullable = false)
-    private Integer roomNumber;
+    private UUID roomId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
