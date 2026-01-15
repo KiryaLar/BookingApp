@@ -18,6 +18,11 @@ spring:
         max-page-size: 100
         one-indexed-parameters: false
 
+security:
+  jwt:
+    secret: hAIt9N0vnfIYlM1YdRlysMFWJY0LxASdWfWCiJdz73n7oZogbA5ZQpZs3ZkY8p3Il1k9n5cY4poPqV2h7CwJdA==
+    algorithm: HS256
+
 springdoc:
   api-docs:
     enabled: true

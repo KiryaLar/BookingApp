@@ -15,6 +15,10 @@ dependencies {
     annotationProcessor(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
+    // Security
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.oauth2.resource.server)
+
     // Persistence
     implementation(libs.spring.boot.starter.data.jpa)
     runtimeOnly(libs.postgresql)

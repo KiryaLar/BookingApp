@@ -19,6 +19,10 @@ dependencies {
     implementation(libs.spring.boot.starter.data.jpa)
     runtimeOnly(libs.postgresql)
 
+    // Security
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.oauth2.resource.server)
+
 //    Observability
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.micrometer.tracing.bridge.otel)
