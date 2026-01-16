@@ -32,5 +32,6 @@ dependencies {
     implementation(libs.springdoc.openapi.webmvc.ui)
 
     // Tests
+    testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly(libs.junit.platform.launcher)
 }
