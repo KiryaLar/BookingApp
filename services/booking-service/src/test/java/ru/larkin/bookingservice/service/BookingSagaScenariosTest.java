@@ -1,9 +1,10 @@
 package ru.larkin.bookingservice.service;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.ResourceAccessException;
 import ru.larkin.bookingservice.client.HotelManagementClient;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class BookingSagaScenariosTest {
 
     @Autowired
@@ -37,7 +39,7 @@ class BookingSagaScenariosTest {
     @Autowired
     UserRepository userRepository;
 
-    @Mock
+    @MockBean
     HotelManagementClient hotelManagementClient;
 
     private User user() {
@@ -150,4 +152,3 @@ class BookingSagaScenariosTest {
         verify(hotelManagementClient, times(1)).confirmAvailability(any(UUID.class), any(ConfirmAvailabilityRequestDto.class));
     }
 }
-
