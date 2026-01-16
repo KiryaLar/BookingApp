@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping({"/api/rooms", "/rooms"})
 @Validated
 @Tag(name = "Rooms", description = "Управление номерами и проверка доступности")
 public class RoomController {
@@ -83,7 +83,7 @@ public class RoomController {
         return ResponseEntity.ok(roomService.listAvailable(query));
     }
 
-    @GetMapping("/recommended")
+    @GetMapping("/recommend")
     @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Получить список рекомендованных свободных номеров",
@@ -98,6 +98,15 @@ public class RoomController {
     })
     public ResponseEntity<List<RoomResponse>> listRecommended(
             @Parameter(description = "Диапазон дат (dateFrom/dateTo)")
+            @Valid @ModelAttribute RoomsQuery query
+    ) {
+        return ResponseEntity.ok(roomService.listRecommended(query));
+    }
+
+    // старый алиас (если где-то уже используется)
+    @GetMapping("/recommended")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<RoomResponse>> listRecommendedAlias(
             @Valid @ModelAttribute RoomsQuery query
     ) {
         return ResponseEntity.ok(roomService.listRecommended(query));

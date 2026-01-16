@@ -49,3 +49,10 @@ logging:
   pattern:
     correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
   include-application-name: false
+
+clients:
+  hotel-management:
+    base-url: http://localhost:8082/api
+    timeout: 2s
+    max-attempts: 3
+    initial-backoff: 200ms

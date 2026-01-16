@@ -1,9 +1,10 @@
-package ru.larkin.hotelmanagementservice.dto.req;
+package ru.larkin.bookingservice.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record ReleaseHoldRequest(
+public record ReleaseHoldRequestDto(
         @NotBlank String token,
         @NotBlank String requestId
 ) {
 }
+

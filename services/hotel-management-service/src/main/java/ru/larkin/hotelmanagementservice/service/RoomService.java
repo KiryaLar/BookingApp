@@ -66,6 +66,13 @@ public class RoomService {
 
     @Transactional
     public ConfirmAvailabilityResponse confirmAvailability(UUID roomId, ConfirmAvailabilityRequest request) {
+        // идемпотентность по requestId
+        RoomHold existing = roomHoldRepository.findByRequestId(request.requestId()).orElse(null);
+        if (existing != null) {
+            // если requestId уже был обработан, просто возвращаем тот же результат
+            return new ConfirmAvailabilityResponse(existing.getToken(), existing.getExpiresAt());
+        }
+
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
@@ -88,6 +95,7 @@ public class RoomService {
                 .room(room)
                 .dateFrom(request.dateFrom())
                 .dateTo(request.dateTo())
+                .requestId(request.requestId())
                 .token(token)
                 .expiresAt(expiresAt)
                 .build());
@@ -100,7 +108,12 @@ public class RoomService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
         RoomHold hold = roomHoldRepository.findByToken(request.token())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hold token not found"));
+                // идемпотентность: повторный release того же токена/запроса считаем успехом
+                .orElse(null);
+
+        if (hold == null) {
+            return;
+        }
 
         if (!hold.getRoom().getId().equals(room.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Hold token does not belong to this room");
@@ -141,4 +154,3 @@ public class RoomService {
         );
     }
 }
-

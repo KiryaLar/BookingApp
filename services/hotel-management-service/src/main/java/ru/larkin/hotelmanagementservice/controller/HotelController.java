@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/hotels")
+@RequestMapping({"/api/hotels", "/hotels"})
 @RequiredArgsConstructor
 @Tag(name = "Hotels", description = "Управление отелями")
 public class HotelController {

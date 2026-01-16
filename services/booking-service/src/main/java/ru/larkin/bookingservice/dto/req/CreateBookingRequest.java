@@ -14,6 +14,11 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class CreateBookingRequest {
 
+    /**
+     * Идемпотентный идентификатор запроса. Используется при повторах/тайм-аутах.
+     */
+    private String requestId;
+
     @NotNull
     private String hotelId;
 
@@ -23,4 +28,3 @@ public class CreateBookingRequest {
     private OffsetDateTime from;
     private OffsetDateTime to;
 }
-

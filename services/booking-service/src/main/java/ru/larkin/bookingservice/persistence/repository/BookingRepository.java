@@ -1,6 +1,5 @@
 package ru.larkin.bookingservice.persistence.repository;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +12,8 @@ import ru.larkin.bookingservice.persistence.entity.User;
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     Optional<Booking> findByIdAndUserId(UUID id, UUID userId);
+
+    Optional<Booking> findByRequestId(String requestId);
 
     Page<Booking> findAllByUser(User user, Pageable pageable);
 }

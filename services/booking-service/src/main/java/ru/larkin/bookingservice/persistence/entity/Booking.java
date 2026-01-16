@@ -16,7 +16,16 @@ import ru.larkin.bookingservice.domain.BookingStatus;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "bookings")
+@Table(
+        name = "bookings",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_bookings_request_id", columnNames = {"request_id"})
+        },
+        indexes = {
+                @Index(name = "idx_bookings_user_id", columnList = "user_id"),
+                @Index(name = "idx_bookings_room_id", columnList = "room_id")
+        }
+)
 @EnableJpaAuditing
 public class Booking {
 
@@ -45,5 +54,10 @@ public class Booking {
     @CreatedDate
     private OffsetDateTime createdAt;
 
-}
+    @Column(name = "request_id", nullable = false)
+    private String requestId;
 
+    @Column(name = "hold_token")
+    private String holdToken;
+
+}

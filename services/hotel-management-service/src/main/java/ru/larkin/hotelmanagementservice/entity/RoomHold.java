@@ -15,8 +15,12 @@ import java.util.UUID;
 @Entity
 @Table(
         name = "room_holds",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_room_holds_request_id", columnNames = {"request_id"})
+        },
         indexes = {
-                @Index(name = "idx_room_holds_room_id", columnList = "room_id")
+                @Index(name = "idx_room_holds_room_id", columnList = "room_id"),
+                @Index(name = "idx_room_holds_token", columnList = "token")
         }
 )
 public class RoomHold {
@@ -41,5 +45,7 @@ public class RoomHold {
     @Column(nullable = false)
     private OffsetDateTime expiresAt;
 
-}
+    @Column(name = "request_id", nullable = false)
+    private String requestId;
 
+}

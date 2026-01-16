@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.larkin.bookingservice.service.exception.ConflictException;
 import ru.larkin.bookingservice.service.exception.NotFoundException;
 import ru.larkin.bookingservice.service.exception.UnauthorizedException;
+import ru.larkin.bookingservice.service.exception.ServiceUnavailableException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -33,6 +34,11 @@ public class ApiExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ProblemDetail> handleServiceUnavailable(ServiceUnavailableException ex) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     private static ResponseEntity<ProblemDetail> problem(HttpStatus status, String detail) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
         pd.setTitle(status.getReasonPhrase());
@@ -40,4 +46,3 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(status).body(pd);
     }
 }
-

@@ -9,11 +9,12 @@ import java.time.LocalDate;
 public record ConfirmAvailabilityRequest(
         @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
         @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+        @NotNull String requestId,
         Integer holdMinutes
 ) {
     @AssertTrue(message = "dateTo must be after dateFrom")
+    @SuppressWarnings("unused")
     public boolean isDateRangeValid() {
         return dateTo.isAfter(dateFrom);
     }
 }
-

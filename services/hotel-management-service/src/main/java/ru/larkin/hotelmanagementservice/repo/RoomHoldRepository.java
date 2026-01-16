@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface RoomHoldRepository extends JpaRepository<RoomHold, UUID> {
     Optional<RoomHold> findByToken(String token);
 
+    Optional<RoomHold> findByRequestId(String requestId);
+
     List<RoomHold> findByExpiresAtBefore(OffsetDateTime timestamp);
 }
-
